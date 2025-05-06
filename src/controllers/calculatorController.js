@@ -41,7 +41,7 @@ exports.calculate = async (req, res) => {
 
 exports.getHistory = async (req, res) => {
   try {
-    const history = await prisma.calculation.finMany({
+    const history = await prisma.calculation.findMany({
       orderBy: { createdAt: 'desc' }
     });
     res.json(history);
@@ -50,7 +50,7 @@ exports.getHistory = async (req, res) => {
   }
 };
 
-exports.deleteHistory = async (req, res) => {
+exports.deleteHistoryItem = async (req, res) => {
   try {
     await prisma.calculation.delete({
       where: { id: parseInt(req.params.id) }
