@@ -1,0 +1,29 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Calculation {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  operation String   // Supported values: "+", "-", "*", "/"
+  operand1  String   // First number (string to support decimals)
+  operand2  String?  // Second number (optional for operations like square root)
+  result    String   // Calculated result
+
+  // Performance optimizations
+  @@index([createdAt], name: "created_at_index")  // Faster history sorting
+  @@index([operation], name: "operation_index")   // Faster operation filtering
+  @@map("calculations")  // Explicit table name
+}
