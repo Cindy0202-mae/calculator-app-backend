@@ -1,11 +1,12 @@
 const express = require('express');
+const router = express.Router();
+
 const {
   calculate,
   getHistory,
   deleteHistoryItem
 } = require('../controllers/calculatorController');
 
-const router = express.Router();
 
 // POST /api/calculate
 router.post('/calculate', calculate);

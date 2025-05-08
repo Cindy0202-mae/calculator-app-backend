@@ -2,9 +2,8 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 exports.calculate = async (req, res) => {
-  const { operation, operand1, operand2 } = req.body;
-
   try {
+    const { operation, operand1, operand2 } = req.body;
     // Calculation logic
     const num1 = parseFloat(operand1);
     const num2 = operand2 ? parseFloat(operand2) : 0;
