@@ -3,13 +3,14 @@ const router = express.Router();
 
 const {
   calculate,
+  validateCalculation,
   getHistory,
   deleteHistoryItem
 } = require('../controllers/calculatorController');
 
 
 // POST /api/calculate
-router.post('/calculate', calculate);
+router.post('/calculate', validateCalculation, calculate);
 
 // GET /api/history
 router.get('/history', getHistory);

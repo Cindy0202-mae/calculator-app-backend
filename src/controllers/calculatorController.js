@@ -9,13 +9,17 @@ exports.validateCalculation = (req, res, next) => {
     return res.status(400).json({ error: 'Invalid operation' });
   }
 
-  if (isNaN(parseFloat(operand1))) {
+  if (isNaN(Number(operand1))) {
     return res.status(400).json({ error: 'operand1 must be a number' });
   }
 
-  if (operation !== '!' && isNaN(parseFloat(operand2))) {
+  if (isNaN(Number(operand2))) {
     return res.status(400).json({ error: 'operand2 must be a number' });
   }
+
+  // Convert to numbers
+  req.body.operand1 = Number(operand1);
+  req.body.operand2 = Number(operand2);
 
   next();
 };
@@ -23,28 +27,42 @@ exports.validateCalculation = (req, res, next) => {
 exports.calculate = async (req, res) => {
   try {
     const { operation, operand1, operand2 } = req.body;
-    // Calculation logic
-    const num1 = parseFloat(operand1);
-    const num2 = operand2 ? parseFloat(operand2) : 0;
-
-    switch (operation) {
-      case '+': result = num1 + num2; break;
-      case '-': result = num1 - num2; break;
-      case '*': result = num1 * num2; break;
-      case '/':
-        if (num2 === 0) throw new Error('Division by zero');
-        result = num1 / num2;
-        break;
-      default:
-        throw new Error('Unsupported operation');
+     // Validate input types
+    if (typeof operand1 !== 'number' || typeof operand2 !== 'number') {
+      return res.status(400).json({
+        error: 'Operands must be numbers',
+        received: { operand1, operand2 },
+        result: null
+      });
     }
 
-    //Save to database
+    let result;
+    switch (operation) {
+      case '+': result = operand1 + operand2; break;
+      case '-': result = operand1 - operand2; break;
+      case '*': result = operand1 * operand2; break;
+      case '/':
+        if (operand2 === 0) {
+          return res.status(400).json({
+            error: 'Division by zero',
+            result: 'Undefined'
+          });
+        }
+        result = operand1 / operand2;
+        break;
+      default:
+        return res.status(400).json({
+          error: `Invalid operation: ${operation}`,
+          result: null
+        });
+    }
+
+    // Save to database
     const calculation = await prisma.calculation.create({
       data: {
         operation,
-        operand1: num1.toString(),
-        operand2: num2.toString(),
+        operand1: operand1.toString(),
+        operand2: operand2.toString(),
         result: result.toString(),
       }
     });
@@ -55,10 +73,10 @@ exports.calculate = async (req, res) => {
       calculation
     });
   } catch (error) {
-    cpnsole.error('Calculation error:', error);
-    res.status(400).json({
-      error: error.message,
-      details: 'Check your input values'
+    console.error('Server error:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      result: 'Error'
     });
   }
 };
