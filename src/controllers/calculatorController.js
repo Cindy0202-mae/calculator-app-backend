@@ -1,6 +1,25 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+// Add input validation middleware
+exports.validateCalculation = (req, res, next) => {
+  const { operation, operand1, operand2 } = req.body;
+
+  if (!['+', '-', '*', '/'].includes(operation)) {
+    return res.status(400).json({ error: 'Invalid operation' });
+  }
+
+  if (isNaN(parseFloat(operand1))) {
+    return res.status(400).json({ error: 'operand1 must be a number' });
+  }
+
+  if (operation !== '!' && isNaN(parseFloat(operand2))) {
+    return res.status(400).json({ error: 'operand2 must be a number' });
+  }
+
+  next();
+};
+
 exports.calculate = async (req, res) => {
   try {
     const { operation, operand1, operand2 } = req.body;
@@ -13,28 +32,34 @@ exports.calculate = async (req, res) => {
       case '-': result = num1 - num2; break;
       case '*': result = num1 * num2; break;
       case '/':
-        if (num2 === 0) {
-          return res.status(400).json({ error: 'Division by zero is not allowed' });
-        }
+        if (num2 === 0) throw new Error('Division by zero');
         result = num1 / num2;
         break;
+      default:
+        throw new Error('Unsupported operation');
     }
-
-    if (isNaN(result)) throw new Error('Invalid calculation');
 
     //Save to database
     const calculation = await prisma.calculation.create({
       data: {
         operation,
-        operand1: operand1.toString(),
-        operand2: operand2?.toString(),
+        operand1: num1.toString(),
+        operand2: num2.toString(),
         result: result.toString(),
       }
     });
 
-    res.json(calculation);
+    res.json({
+      success: true,
+      result: calculation.result,
+      calculation
+    });
   } catch (error) {
-    res.status(400).json({error: error.message});
+    cpnsole.error('Calculation error:', error);
+    res.status(400).json({
+      error: error.message,
+      details: 'Check your input values'
+    });
   }
 };
 
