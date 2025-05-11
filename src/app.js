@@ -18,7 +18,8 @@ const allowedOrigins = [
   `http://${LOCAL_IP}:${EXPO_WEB_PORT}`,
   `http://${LOCAL_IP}:${DEV_SERVER_PORT}`,
   `http://localhost:3000`,
-  `http://localhost:3001`
+  `http://localhost:3001`,
+  `expo://192.168.0.22:${EXPO_GO_PORT}`
 ];
 
 app.use(cors({
@@ -56,7 +57,7 @@ app.get('/health', (req, res) => {
 
 //Start server
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://${LOCAL_IP}:${PORT}`);
   console.log(`Server running on http://localhost:${PORT}`);
 });
