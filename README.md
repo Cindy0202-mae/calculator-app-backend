@@ -10,7 +10,6 @@ This is the backend for the Calculator App, built with **Node.js**, **Express**,
 - Validate input to ensure proper operations and operands.
 - Store calculation history in a database.
 - Retrieve and delete calculation history.
-- Health check endpoint for monitoring server status.
 
 ---
 
@@ -122,5 +121,4 @@ You can test the API using tools like `curl` or Postman.
 ---
 
 ## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the [MIT License](LICENSE). See the LICENSE file for more details.
